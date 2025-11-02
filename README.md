@@ -171,6 +171,11 @@ vercel
 
 5. Your API will be available at: `https://your-project.vercel.app/jsonrpc`
 
+6. Verify deployment:
+```powershell
+python verify_server.py https://your-project.vercel.app
+```
+
 ## Troubleshooting
 
 **404 Error on /jsonrpc:**
