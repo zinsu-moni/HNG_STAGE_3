@@ -12,16 +12,25 @@ app = FastAPI(title="A2A JSON-RPC Motivation Agent")
 logger = logging.getLogger("uvicorn.error")
 
 
+@app.get("/")
+async def root():
+    """Health check endpoint"""
+    return {"status": "ok", "service": "A2A JSON-RPC Motivation Agent", "endpoint": "/jsonrpc"}
+
+
 def jsonrpc_error(code: int, message: str, id_val: Any = None):
     return {"jsonrpc": "2.0", "error": {"code": code, "message": message}, "id": id_val}
 
 
 @app.post("/jsonrpc")
 async def handle_jsonrpc(request: Request):
+    logger.info(f"Received request to /jsonrpc from {request.client}")
+    
     try:
         payload = await request.json()
+        logger.info(f"Request payload: {payload}")
     except Exception as e:
-        logger.debug("Invalid JSON: %s", e)
+        logger.error(f"Invalid JSON: {e}")
         return JSONResponse(status_code=400, content=jsonrpc_error(-32700, "Parse error", None))
 
     # Basic JSON-RPC 2.0 validation
@@ -43,12 +52,13 @@ async def handle_jsonrpc(request: Request):
     if method == "motivate":
         user_input = None
         if isinstance(params, dict):
-            user_input = params.get("input")
+            # Support both 'input' and 'message' keys for A2A compatibility
+            user_input = params.get("input") or params.get("message")
         elif isinstance(params, list) and len(params) > 0:
             user_input = params[0]
 
         if not user_input:
-            return JSONResponse(status_code=400, content=jsonrpc_error(-32602, "Invalid params: 'input' is required", id_val))
+            return JSONResponse(status_code=400, content=jsonrpc_error(-32602, "Invalid params: 'input' or 'message' is required", id_val))
 
         try:
             result = await generate_motivation(user_input)

@@ -81,3 +81,35 @@ curl -X POST http://127.0.0.1:8000/jsonrpc -H "Content-Type: application/json" -
 ## Notes
 - This project intentionally falls back to local rule-based suggestions if a remote model call fails or is not configured.
 - The JSON-RPC 2.0 specification is followed for error codes and response structure.
+
+## Deploy to Vercel
+
+1. Install Vercel CLI:
+```powershell
+npm install -g vercel
+```
+
+2. Login to Vercel:
+```powershell
+vercel login
+```
+
+3. Deploy:
+```powershell
+vercel
+```
+
+4. Set environment variables in Vercel dashboard:
+   - `OPENAI_API_KEY`
+   - `OPENAI_BASE_URL`
+   - `A2A_MODEL` (optional)
+
+5. Your API will be available at: `https://your-project.vercel.app/jsonrpc`
+
+## Troubleshooting
+
+**404 Error on /jsonrpc:**
+- Ensure the server is running: `python main.py`
+- Check the URL matches your deployment (local: `http://127.0.0.1:8000/jsonrpc`, Vercel: `https://your-project.vercel.app/jsonrpc`)
+- Test the health endpoint first: `curl http://127.0.0.1:8000/`
+
