@@ -14,11 +14,26 @@ from agent import generate_motivation
 try:
     from dotenv import load_dotenv
     load_dotenv()
-except Exception:
+    print("✓ Environment loaded from .env file")
+except Exception as e:
     # In production (Vercel), env vars are set via dashboard
-    pass
+    print(f"⚠ Could not load .env: {e}")
 
 app = FastAPI(title="A2A JSON-RPC Motivation Agent")
+
+# Log environment configuration on startup
+@app.on_event("startup")
+async def startup_event():
+    api_key = os.getenv("OPENAI_API_KEY")
+    base_url = os.getenv("OPENAI_BASE_URL")
+    model = os.getenv("A2A_MODEL")
+    print("\n" + "="*60)
+    print("🚀 A2A Motivation Agent Starting...")
+    print("="*60)
+    print(f"API Key: {'✓ Configured' if api_key else '✗ Missing'}")
+    print(f"Base URL: {base_url or '✗ Missing'}")
+    print(f"Model: {model or '✗ Missing'}")
+    print("="*60 + "\n")
 
 # Add CORS middleware
 app.add_middleware(

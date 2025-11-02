@@ -144,10 +144,12 @@ async def generate_motivation(user_input: str) -> Dict[str, Any]:
         base_url = os.getenv("OPENAI_BASE_URL")
         if api_key and base_url:
             try:
+                logger.info(f"Attempting remote model call with API key: {api_key[:20]}... and base URL: {base_url}")
                 suggestions = await _call_remote_model(user_input)
+                logger.info(f"Remote model returned {len(suggestions)} suggestions")
                 return {"motivations": suggestions, "source": "remote_model"}
-            except Exception:
-                logger.exception("Remote model call failed; falling back to local rules")
+            except Exception as e:
+                logger.exception(f"Remote model call failed with error: {str(e)}; falling back to local rules")
 
         # Local fallback
         suggestions = _rule_based_motivation(user_input)
