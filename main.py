@@ -193,18 +193,10 @@ async def handle_jsonrpc(request: Request, background_tasks: BackgroundTasks):
                 # Generate outputs immediately  
                 outputs = await process_and_respond()
                 
-                # Build response with both outputs and message
-                a2a_response = {
-                    "outputs": outputs,
-                    "message": {
-                        "kind": "message",
-                        "role": "agent",
-                        "parts": outputs,
-                        "messageId": message_id
-                    }
-                }
+                # Return ONLY outputs - simpler format for workflow UI
+                a2a_response = {"outputs": outputs}
                 
-                logger.info(f"✅ NON-BLOCKING: Returning {len(outputs)} outputs immediately")
+                logger.info(f"✅ NON-BLOCKING: Returning {len(outputs)} outputs (simple format)")
                 return JSONResponse(status_code=200, content={
                     "jsonrpc": "2.0",
                     "result": a2a_response,
@@ -217,15 +209,7 @@ async def handle_jsonrpc(request: Request, background_tasks: BackgroundTasks):
         # Blocking mode OR non-blocking without webhook: wait for response and return directly
         try:
             outputs = await process_and_respond()
-            a2a_response = {
-                "outputs": outputs,
-                "message": {
-                    "kind": "message",
-                    "role": "agent",
-                    "parts": outputs,
-                    "messageId": message_id
-                }
-            }
+            a2a_response = {"outputs": outputs}
             
             logger.info(f"Returning {'blocking' if blocking else 'direct non-blocking'} response with {len(outputs)} outputs")
             return JSONResponse(status_code=200, content={"jsonrpc": "2.0", "result": a2a_response, "id": id_val})
