@@ -32,14 +32,19 @@ async def send_webhook_notification(webhook_url: str, token: str, outputs: list,
             "Content-Type": "application/json"
         }
         
-        # A2A webhook payload format
+        # A2A webhook payload format - JSON-RPC wrapped
         payload = {
-            "message": {
-                "kind": "message",
-                "role": "agent",
-                "parts": outputs,  # outputs already has the right format
-                "messageId": message_id
-            }
+            "jsonrpc": "2.0",
+            "method": "message/response",
+            "params": {
+                "message": {
+                    "kind": "message",
+                    "role": "agent",
+                    "parts": outputs,
+                    "messageId": message_id
+                }
+            },
+            "id": message_id
         }
         
         logger.info(f"Sending webhook notification to {webhook_url}")
