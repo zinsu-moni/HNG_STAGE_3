@@ -5,11 +5,21 @@ import asyncio
 
 from fastapi import FastAPI, Request, BackgroundTasks
 from fastapi.responses import JSONResponse
+from fastapi.middleware.cors import CORSMiddleware
 import httpx
 
 from agent import generate_motivation
 
 app = FastAPI(title="A2A JSON-RPC Motivation Agent")
+
+# Add CORS middleware
+app.add_middleware(
+    CORSMiddleware,
+    allow_origins=["*"],  # Allow all origins
+    allow_credentials=True,
+    allow_methods=["*"],  # Allow all methods
+    allow_headers=["*"],  # Allow all headers
+)
 
 logger = logging.getLogger("uvicorn.error")
 
