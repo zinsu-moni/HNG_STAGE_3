@@ -32,16 +32,22 @@ async def send_webhook_notification(webhook_url: str, token: str, outputs: list,
             "Content-Type": "application/json"
         }
         
+        # A2A webhook payload format
         payload = {
-            "messageId": message_id,
-            "outputs": outputs
+            "message": {
+                "kind": "message",
+                "role": "agent",
+                "parts": outputs,  # outputs already has the right format
+                "messageId": message_id
+            }
         }
         
         logger.info(f"Sending webhook notification to {webhook_url}")
+        logger.info(f"Webhook payload: {payload}")
         async with httpx.AsyncClient(timeout=10.0) as client:
             resp = await client.post(webhook_url, json=payload, headers=headers)
-            logger.info(f"Webhook response: {resp.status_code}")
-            return resp.status_code == 200
+            logger.info(f"Webhook response: {resp.status_code} - {resp.text[:200]}")
+            return resp.status_code in [200, 201, 202, 204]
     except Exception as e:
         logger.exception(f"Failed to send webhook notification: {e}")
         return False
