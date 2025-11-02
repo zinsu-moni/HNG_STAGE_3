@@ -159,7 +159,10 @@ async def handle_jsonrpc(request: Request, background_tasks: BackgroundTasks):
         if not user_input:
             user_input = "Give me motivation"  # Fallback
 
-        logger.info(f"Processing: '{user_input[:50]}...' | Blocking: {blocking} | MessageID: {message_id}")
+        logger.info(f"=== A2A REQUEST ===")
+        logger.info(f"Extracted Input: '{user_input}'")
+        logger.info(f"Blocking: {blocking} | MessageID: {message_id}")
+        logger.info(f"===================")
 
         async def process_and_respond():
             """Generate motivation and send webhook if needed."""
@@ -174,6 +177,9 @@ async def handle_jsonrpc(request: Request, background_tasks: BackgroundTasks):
                 ]
                 
                 logger.info(f"Generated {len(motivations)} motivations")
+                logger.info(f"Source: {result.get('source', 'unknown')}")
+                for i, m in enumerate(motivations, 1):
+                    logger.info(f"  [{i}] {m}")
                 
                 # Send webhook notification if non-blocking
                 if not blocking and webhook_config:
@@ -196,7 +202,7 @@ async def handle_jsonrpc(request: Request, background_tasks: BackgroundTasks):
                 # Return outputs in the response so UI can display them
                 a2a_response = {"outputs": outputs}
                 
-                logger.info(f"Non-blocking mode: returning {len(outputs)} outputs (webhook also sent)")
+                logger.info(f"✅ NON-BLOCKING: Returning {len(outputs)} outputs immediately + webhook sent")
                 return JSONResponse(status_code=200, content={
                     "jsonrpc": "2.0",
                     "result": a2a_response,
