@@ -9,6 +9,64 @@ This small project implements a JSON-RPC 2.0 endpoint that provides motivational
 - `requirements.txt` — Python dependencies.
 
 ## JSON-RPC contract
+
+### A2A Protocol (Primary)
+The server implements the A2A protocol with method `message/send`:
+
+Request example:
+```json
+{
+  "jsonrpc": "2.0",
+  "id": "unique-id",
+  "method": "message/send",
+  "params": {
+    "message": {
+      "kind": "message",
+      "role": "user",
+      "parts": [
+        {
+          "kind": "text",
+          "text": "Give me motivation to pass my exam"
+        }
+      ],
+      "messageId": "message-id"
+    },
+    "configuration": {
+      "acceptedOutputModes": ["text/plain"],
+      "historyLength": 0,
+      "blocking": false
+    }
+  }
+}
+```
+
+Response example:
+```json
+{
+  "jsonrpc": "2.0",
+  "result": {
+    "outputs": [
+      {
+        "kind": "text",
+        "text": "You've got this! Focus on one topic at a time..."
+      },
+      {
+        "kind": "text",
+        "text": "Take breaks to recharge your mind..."
+      },
+      {
+        "kind": "text",
+        "text": "Believe in your preparation and stay confident!"
+      }
+    ]
+  },
+  "id": "unique-id"
+}
+```
+
+### Simple Protocol (Backward Compatible)
+For simpler integrations, use the `motivate` method:
+
 Request example:
 ```json
 {
@@ -19,7 +77,7 @@ Request example:
 }
 ```
 
-Response example (happy path):
+Response example:
 ```json
 {
   "jsonrpc": "2.0",
