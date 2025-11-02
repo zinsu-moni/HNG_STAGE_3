@@ -42,11 +42,12 @@ async def send_webhook_notification(webhook_url: str, token: str, outputs: list,
             "Content-Type": "application/json"
         }
         
-        # A2A webhook payload format - JSON-RPC wrapped with message/send method
+        # A2A webhook payload format - Try simplified format with outputs at top level
         payload = {
             "jsonrpc": "2.0",
             "method": "message/send",
             "params": {
+                "outputs": outputs,  # Outputs at params level
                 "message": {
                     "kind": "message",
                     "role": "agent",
@@ -61,7 +62,7 @@ async def send_webhook_notification(webhook_url: str, token: str, outputs: list,
         logger.info(f"Webhook payload: {payload}")
         async with httpx.AsyncClient(timeout=10.0) as client:
             resp = await client.post(webhook_url, json=payload, headers=headers)
-            logger.info(f"Webhook response: {resp.status_code} - {resp.text[:200]}")
+            logger.info(f"Webhook response: {resp.status_code} - {resp.text[:500]}")
             return resp.status_code in [200, 201, 202, 204]
     except Exception as e:
         logger.exception(f"Failed to send webhook notification: {e}")
