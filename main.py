@@ -154,18 +154,24 @@ async def handle_jsonrpc(request: Request, background_tasks: BackgroundTasks):
                 logger.exception("Agent error in process_and_respond")
                 return []
 
-        # Non-blocking mode with webhook: return immediately, send outputs via webhook only
+        # Non-blocking mode with webhook: return outputs immediately AND send via webhook
         if not blocking and webhook_config and webhook_config.get("url"):
-            # Queue background task to process and send webhook
-            background_tasks.add_task(process_and_respond)
-            logger.info("Non-blocking mode: queued background task, will send webhook")
-            
-            # Return immediate acknowledgment (no outputs in response)
-            return JSONResponse(status_code=200, content={
-                "jsonrpc": "2.0",
-                "result": {},  # Empty result for non-blocking
-                "id": id_val
-            })
+            try:
+                # Generate outputs immediately  
+                outputs = await process_and_respond()
+                
+                # Return outputs in the response so UI can display them
+                a2a_response = {"outputs": outputs}
+                
+                logger.info(f"Non-blocking mode: returning {len(outputs)} outputs (webhook also sent)")
+                return JSONResponse(status_code=200, content={
+                    "jsonrpc": "2.0",
+                    "result": a2a_response,
+                    "id": id_val
+                })
+            except Exception as e:
+                logger.exception("Agent error")
+                return JSONResponse(status_code=500, content=jsonrpc_error(-32000, f"Server error: {str(e)}", id_val))
         
         # Blocking mode OR non-blocking without webhook: wait for response and return directly
         try:
