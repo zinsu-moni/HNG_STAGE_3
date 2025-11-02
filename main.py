@@ -181,26 +181,19 @@ async def handle_jsonrpc(request: Request, background_tasks: BackgroundTasks):
                 for i, m in enumerate(motivations, 1):
                     logger.info(f"  [{i}] {m}")
                 
-                # Send webhook notification if non-blocking
-                if not blocking and webhook_config:
-                    webhook_url = webhook_config.get("url")
-                    token = webhook_config.get("token")
-                    if webhook_url and token and message_id:
-                        await send_webhook_notification(webhook_url, token, outputs, message_id)
-                
                 return outputs
             except Exception as e:
                 logger.exception("Agent error in process_and_respond")
                 return []
 
-        # Non-blocking mode with webhook: return outputs immediately AND send via webhook
-        if not blocking and webhook_config and webhook_config.get("url"):
+        # Non-blocking mode with webhook: return outputs immediately WITHOUT webhook
+        # The workflow will get the response faster this way
+        if not blocking:
             try:
                 # Generate outputs immediately  
                 outputs = await process_and_respond()
                 
-                # Return outputs in the response so UI can display them
-                # Include both outputs and message for compatibility
+                # Build response with both outputs and message
                 a2a_response = {
                     "outputs": outputs,
                     "message": {
@@ -211,7 +204,7 @@ async def handle_jsonrpc(request: Request, background_tasks: BackgroundTasks):
                     }
                 }
                 
-                logger.info(f"✅ NON-BLOCKING: Returning {len(outputs)} outputs immediately + webhook sent")
+                logger.info(f"✅ NON-BLOCKING: Returning {len(outputs)} outputs immediately")
                 return JSONResponse(status_code=200, content={
                     "jsonrpc": "2.0",
                     "result": a2a_response,
