@@ -13,8 +13,13 @@ def _rule_based_motivation(user_input: str) -> List[str]:
     text = user_input.lower()
     suggestions: List[str] = []
 
+    # Exam/test-specific motivation
+    if any(w in text for w in ["exam", "test", "quiz", "midterm", "final"]):
+        suggestions.append("You've prepared for this! Trust your knowledge and take it one question at a time. 📚")
+        suggestions.append("Take deep breaths before starting. A calm mind recalls information better than a stressed one. 🧘")
+        suggestions.append("Remember: You don't need perfection, just progress. Answer what you know first, then tackle the rest. ✨")
     # Simple heuristics
-    if any(w in text for w in ["tired", "exhausted", "burnout"]):
+    elif any(w in text for w in ["tired", "exhausted", "burnout"]):
         suggestions.append("You're allowed to rest — take a short, intentional break and come back with fresh energy.")
         suggestions.append("Break your work into 15-minute sprints; small wins will rebuild momentum.")
         suggestions.append("Celebrate one tiny thing you did well today, however small.")

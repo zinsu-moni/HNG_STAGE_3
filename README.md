@@ -3,10 +3,12 @@
 This small project implements a JSON-RPC 2.0 endpoint that provides motivational suggestions based on user input. It's intentionally minimal so you can adapt it to call any OpenAI-compatible API (such as openrouter.ai) by configuring environment variables.
 
 ## Files
-- `main.py` — FastAPI app exposing a `POST /jsonrpc` endpoint; supports method `motivate`.
+- `main.py` — FastAPI app exposing a `POST /jsonrpc` endpoint; supports A2A protocol method `message/send` and simple `motivate` method.
 - `agent.py` — Agent logic: rule-based fallback and optional remote model call if `OPENAI_API_KEY` and `OPENAI_BASE_URL` are set.
-- `test_client.py` — Simple client to exercise the JSON-RPC `motivate` method.
+- `test_a2a_client.py` — Test client for A2A protocol `message/send` method.
+- `test_client.py` — Test client for simple `motivate` method (backward compatible).
 - `requirements.txt` — Python dependencies.
+- `vercel.json` — Vercel deployment configuration.
 
 ## JSON-RPC contract
 
@@ -121,6 +123,11 @@ uvicorn main:app --reload
 
 4. In another terminal, run the test client:
 
+```powershell
+python test_a2a_client.py
+```
+
+Or test the simple protocol:
 ```powershell
 python test_client.py
 ```
