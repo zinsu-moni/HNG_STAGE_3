@@ -7,12 +7,16 @@ from fastapi import FastAPI, Request, BackgroundTasks
 from fastapi.responses import JSONResponse
 from fastapi.middleware.cors import CORSMiddleware
 import httpx
-from dotenv import load_dotenv
 
 from agent import generate_motivation
 
-# Load environment variables from .env file
-load_dotenv()
+# Load environment variables from .env file (only in local development)
+try:
+    from dotenv import load_dotenv
+    load_dotenv()
+except Exception:
+    # In production (Vercel), env vars are set via dashboard
+    pass
 
 app = FastAPI(title="A2A JSON-RPC Motivation Agent")
 
