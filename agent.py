@@ -41,7 +41,7 @@ def _rule_based_motivation(user_input: str) -> List[str]:
 
 
 async def _call_remote_model(user_input: str) -> List[str]:
-    # Try to call an OpenAI-compatible chat completions endpoint if configured.
+    """Call OpenAI-compatible API (like OpenRouter) to generate motivations."""
     api_key = os.getenv("OPENAI_API_KEY")
     base_url = os.getenv("OPENAI_BASE_URL")
 
@@ -54,17 +54,39 @@ async def _call_remote_model(user_input: str) -> List[str]:
 
     headers = {"Authorization": f"Bearer {api_key}", "Content-Type": "application/json"}
 
+    # Use a better model - OpenRouter supports many models
+    model = os.getenv("A2A_MODEL", "meta-llama/llama-3.1-8b-instruct:free")
+    
     payload = {
-        "model": os.getenv("A2A_MODEL", "gpt-3.5-turbo"),
+        "model": model,
         "messages": [
-            {"role": "system", "content": "You are a concise, empathetic motivational coach. Return output as a numbered list or JSON array of short strings."},
-            {"role": "user", "content": f"User input: {user_input}\n\nPlease provide exactly 3 short motivational suggestions (1-2 sentences each). Return only a JSON array of strings if possible."},
+            {
+                "role": "system", 
+                "content": """You are Motivo AI, a compassionate and energetic motivational coach. 
+Your role is to provide personalized, uplifting, and actionable motivation.
+
+Guidelines:
+- Keep responses concise (1-3 sentences each)
+- Be empathetic and understanding
+- Include practical advice when appropriate
+- Use encouraging language and positive affirmations
+- Add relevant emojis to make messages more engaging (📚 🧘 ✨ 💪 🎯 ⭐ 🌟 🔥 💡)
+- Focus on growth mindset and resilience
+- Personalize based on the user's specific concern
+
+Return ONLY a JSON array with exactly 3 motivational strings. Example format:
+["Motivation 1 with emoji 💪", "Motivation 2 with emoji ✨", "Motivation 3 with emoji 🎯"]"""
+            },
+            {
+                "role": "user", 
+                "content": f"{user_input}"
+            }
         ],
-        "max_tokens": 200,
-        "temperature": 0.8,
+        "max_tokens": 300,
+        "temperature": 0.9,
     }
 
-    async with httpx.AsyncClient(timeout=15.0) as client:
+    async with httpx.AsyncClient(timeout=20.0) as client:
         resp = await client.post(url, headers=headers, json=payload)
         resp.raise_for_status()
         data = resp.json()

@@ -7,8 +7,12 @@ from fastapi import FastAPI, Request, BackgroundTasks
 from fastapi.responses import JSONResponse
 from fastapi.middleware.cors import CORSMiddleware
 import httpx
+from dotenv import load_dotenv
 
 from agent import generate_motivation
+
+# Load environment variables from .env file
+load_dotenv()
 
 app = FastAPI(title="A2A JSON-RPC Motivation Agent")
 

@@ -92,36 +92,39 @@ Response example:
 ```
 
 ## Environment variables
-- `OPENAI_API_KEY` (optional) — if set, the server will attempt to call the remote model.
-- `OPENAI_BASE_URL` (optional) — base URL for the OpenAI-compatible API (for example `https://openrouter.ai/api/v1`).
-- `A2A_MODEL` (optional) — model to request, default `gpt-3.5-turbo`.
+- `OPENAI_API_KEY` — Your OpenRouter API key (get one at https://openrouter.ai/keys)
+- `OPENAI_BASE_URL` — OpenRouter base URL: `https://openrouter.ai/api/v1`
+- `A2A_MODEL` — Model to use (default: `meta-llama/llama-3.1-8b-instruct:free`)
+  - Free models: `meta-llama/llama-3.1-8b-instruct:free`, `mistralai/mistral-7b-instruct:free`
+  - Paid models: `anthropic/claude-3-5-sonnet`, `openai/gpt-4-turbo`
 
-**Important**: Do NOT commit your API keys to source control. The examples above show environment variable names only; use your own key locally.
+**Note**: Without API keys, the agent falls back to rule-based motivations.
 
 ## Run locally
 
-1. Create and activate a virtual environment (Windows PowerShell example):
+1. Create a `.env` file with your OpenRouter API key:
 
-```powershell
-python -m venv .venv
-.\.venv\Scripts\Activate.ps1
-pip install -r requirements.txt
+```bash
+OPENAI_API_KEY=your_openrouter_api_key_here
+OPENAI_BASE_URL=https://openrouter.ai/api/v1
+A2A_MODEL=meta-llama/llama-3.1-8b-instruct:free
 ```
 
-2. (Optional) Set environment variables to enable remote model calls:
+Get a free API key at: https://openrouter.ai/keys
+
+2. Install dependencies:
 
 ```powershell
-$env:OPENAI_API_KEY="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"
-$env:OPENAI_BASE_URL="https://openrouter.ai/api/v1"
+pip install -r requirements.txt
 ```
 
 3. Start the server:
 
 ```powershell
-uvicorn main:app --reload
+python main.py
 ```
 
-4. In another terminal, run the test client:
+4. In another terminal, test it:
 
 ```powershell
 python test_a2a_client.py
