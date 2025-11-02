@@ -32,10 +32,10 @@ async def send_webhook_notification(webhook_url: str, token: str, outputs: list,
             "Content-Type": "application/json"
         }
         
-        # A2A webhook payload format - JSON-RPC wrapped
+        # A2A webhook payload format - JSON-RPC wrapped with message/send method
         payload = {
             "jsonrpc": "2.0",
-            "method": "message/response",
+            "method": "message/send",
             "params": {
                 "message": {
                     "kind": "message",
