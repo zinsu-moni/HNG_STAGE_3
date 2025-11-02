@@ -1,5 +1,6 @@
 from typing import Any, Dict
 import os
+import re
 import logging
 import asyncio
 
@@ -132,13 +133,22 @@ async def handle_jsonrpc(request: Request, background_tasks: BackgroundTasks):
             if isinstance(message_obj, dict):
                 message_id = message_obj.get("messageId")
                 parts = message_obj.get("parts", [])
-                # Extract text from first text part
+                # Extract text from all parts, combining them
+                collected_texts = []
                 for part in parts:
                     if isinstance(part, dict) and part.get("kind") == "text":
-                        text = part.get("text", "")
-                        if text and not text.startswith("<"):  # Skip HTML
-                            user_input = text.strip()
-                            break
+                        text = part.get("text", "").strip()
+                        if text:
+                            # Strip HTML tags if present
+                            text = re.sub(r'<[^>]+>', ' ', text)  # Remove HTML tags
+                            text = re.sub(r'\s+', ' ', text)  # Normalize whitespace
+                            text = text.strip()
+                            if text and text.lower() not in ['ok', 'more']:  # Skip filler words
+                                collected_texts.append(text)
+                
+                # Use the most meaningful text (longest non-HTML)
+                if collected_texts:
+                    user_input = max(collected_texts, key=len)
             
             # Extract configuration
             config = params.get("configuration", {})
