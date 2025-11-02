@@ -55,7 +55,7 @@ async def _call_remote_model(user_input: str) -> List[str]:
     headers = {"Authorization": f"Bearer {api_key}", "Content-Type": "application/json"}
 
     # Use a better model - OpenRouter supports many models
-    model = os.getenv("A2A_MODEL", "meta-llama/llama-3.1-8b-instruct:free")
+    model = os.getenv("A2A_MODEL", "meta-llama/llama-3.1-8b-instruct")
     
     payload = {
         "model": model,
